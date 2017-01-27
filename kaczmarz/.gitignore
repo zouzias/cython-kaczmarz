@@ -1,0 +1,5 @@
+*.so
+kaczmarz.c
+build/
+kaczmarz/
+
