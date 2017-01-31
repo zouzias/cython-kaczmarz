@@ -1,2 +1,3 @@
 # cython-kaczmarz
-Least squares solvers variants based on Kaczmarz 
+
+Least squares solvers variants based on Kaczmarz's method
