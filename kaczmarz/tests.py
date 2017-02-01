@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import kaczmarz
 import math
@@ -8,6 +8,8 @@ from scipy.sparse import coo_matrix
 import numpy as np
 from scipy.sparse import rand
 from scipy.linalg import norm
+
+import timeit
 
 def testKaczmarz(m, n, iters):
     np.random.seed(0)
@@ -28,10 +30,9 @@ def testREK(m, n, iters):
     printError(xopt, x_approx)
 
 def printError(xopt, x_approx):
-    print("norm(xopt)={}".format(norm(xopt)))
-    print("norm(x_approx)={}".format(norm(x_approx)))
+    print("==================================")
     print("Error is {}".format(norm(x_approx - xopt)))
-
+    print("==================================")
 
 print("Testing Kacmzarz")
 testKaczmarz(1000, 100, 10000)
