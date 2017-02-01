@@ -65,6 +65,10 @@ cdef c_rek(A, x, b, iters):
     return x
 
 cdef c_kaczmarz(A, x, b, iters):
+
+    cdef double dot = 0.0
+    cdef double alpha = 0.0
+
     if not issubclass(type(A), csr_matrix):
         raise ValueError("input matrix must be a scipy sparse matrix of type (CSR)")
 
@@ -75,10 +79,16 @@ cdef c_kaczmarz(A, x, b, iters):
     for k in xrange(1, iters):
         i_k = k % m
 
-        row = A.getrow(i_k)
-        dot = row.dot(x)
-        val = (b[i_k] - dot) / rNorms[i_k]
-        x += val * row
+        row = A.getrow(i_k).toarray()
+
+        dot = 0.0
+        for l in xrange(A.indptr[i_k],A.indptr[i_k + 1]):
+            dot += A.data[l] * x[A.indices[l]]
+
+        alpha = (b[i_k] - dot) / rNorms[i_k]
+
+        for l in xrange(A.indptr[i_k],A.indptr[i_k + 1]):
+            x[A.indices[l]] += alpha * A.data[l]
     return x
 
 @cython.boundscheck(False)
