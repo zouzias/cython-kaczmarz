@@ -21,20 +21,21 @@ from scipy.linalg.blas import daxpy
 cdef rowNorms(A):
     m = A.shape[0]
     norms = np.zeros(m)
-    for i in range(m):
-        norms[i] = norm(A.getrow(i).toarray())
-        norms[i] = norms[i] * norms[i]
+    for i in xrange(m):
+        for l in xrange(A.indptr[i], A.indptr[i + 1]):
+            norms[i] += math.pow(A.data[l], 2.0)
     return norms
 
 cdef colNorms(A):
-    n = A.shape[1]
+    m, n = A.shape[0], A.shape[1]
     norms = np.zeros(n)
-    for j in range(n):
-        norms[j] = norm(A.getcol(j).toarray())
-        norms[j] = norms[j] * norms[j]
+    for i in xrange(m):
+        for l in xrange(A.indptr[i], A.indptr[i + 1]):
+            norms[A.indices[l]] += math.pow(A.data[l], 2.0)
+
     return norms
 
-cdef c_rek(A, x, b, iters):
+cdef c_extendedKaczmarz(A, x, b, iters):
     if not issubclass(type(A), csr_matrix):
         raise ValueError("input matrix must be a scipy sparse matrix of type (CSR)")
 
@@ -82,7 +83,7 @@ cdef c_kaczmarz(A, x, b, iters):
         row = A.getrow(i_k).toarray()
 
         dot = 0.0
-        for l in xrange(A.indptr[i_k],A.indptr[i_k + 1]):
+        for l in xrange(A.indptr[i_k], A.indptr[i_k + 1]):
             dot += A.data[l] * x[A.indices[l]]
 
         alpha = (b[i_k] - dot) / rNorms[i_k]
@@ -99,4 +100,4 @@ def solve(A not None, x not None, b not None, int iters):
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def rek(A not None, x not None, b not None, int iters):
-    return c_rek(A, x, b, iters)
+    return c_extendedKaczmarz(A, x, b, iters)
