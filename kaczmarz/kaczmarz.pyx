@@ -9,7 +9,6 @@ import cython
 # import both numpy and the Cython declarations for numpy
 import numpy as np
 cimport numpy as np
-import math
 import scipy
 from scipy.sparse import csr_matrix
 from scipy.sparse import csc_matrix
@@ -23,7 +22,7 @@ cdef rowNorms(A):
     norms = np.zeros(m)
     for i in xrange(m):
         for l in xrange(A.indptr[i], A.indptr[i + 1]):
-            norms[i] += math.pow(A.data[l], 2.0)
+            norms[i] += A.data[l]**2
     return norms
 
 cdef colNorms(A):
@@ -31,7 +30,7 @@ cdef colNorms(A):
     norms = np.zeros(n)
     for i in xrange(m):
         for l in xrange(A.indptr[i], A.indptr[i + 1]):
-            norms[A.indices[l]] += math.pow(A.data[l], 2.0)
+            norms[A.indices[l]] += A.data[l]**2
 
     return norms
 
